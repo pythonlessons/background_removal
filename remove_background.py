@@ -15,7 +15,7 @@ class SegmentationModule:
         bg_image: typing.Optional[np.ndarray] = None,
         threshold: float = 0.5,
         model_selection: bool = 1,
-        bg_image_path: str = None,
+        bg_images_path: str = None,
         ) -> None:
         """
         """
@@ -26,8 +26,8 @@ class SegmentationModule:
         self.bg_image = bg_image
         self.threshold = threshold
 
-        if bg_image_path:
-            self.bg_images = [cv2.imread(image.path) for image in stow.ls(bg_image_path)]
+        if bg_images_path:
+            self.bg_images = [cv2.imread(image.path) for image in stow.ls(bg_images_path)]
             self.bg_image = self.bg_images[0]
 
     def change_image(self, prevOrNext: bool = True):
@@ -52,7 +52,7 @@ class SegmentationModule:
             self.bg_image[:] = self.bg_color
     
         frame = np.where(condition, frame, cv2.resize(self.bg_image, frame.shape[:2][::-1]))
-
+ 
         return frame
 
 
@@ -78,9 +78,23 @@ class SelfieSegmentation:
         self.custom_objects = custom_objects
 
     def process_image(self):
-        pass
+        """
+        """
+        frame = cv2.imread(self.image_path)
+
+        if self.flip_view:
+            frame = cv2.flip(frame, 1)
+
+        for custom_object in self.custom_objects:
+            frame = custom_object(frame)
+
+        extension = stow.extension(self.image_path)
+        output_path = self.image_path.replace(f".{extension}", f"_out.{extension}")
+        cv2.imwrite(output_path, frame)
 
     def process_webcam(self):
+        """
+        """
         cap = cv2.VideoCapture(self.webcam_id)
         while cap.isOpened():  
             success, frame = cap.read()
@@ -112,6 +126,8 @@ class SelfieSegmentation:
         cv2.destroyAllWindows()
 
     def process_video(self):
+        """
+        """
         # Create a VideoCapture object and read from input file
         cap = cv2.VideoCapture(self.video_path)
 
@@ -119,8 +135,8 @@ class SelfieSegmentation:
         if not cap.isOpened():
             raise Exception(f"Error opening video stream or file {self.video_path}")
 
-        width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))   # float `width`
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))  # float `height`
+        width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fps = int(cap.get(cv2.CAP_PROP_FPS))
         frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
@@ -154,6 +170,8 @@ class SelfieSegmentation:
         cv2.destroyAllWindows()
 
     def run(self):
+        """
+        """
         if self.video_path:
             self.process_video()
         elif self.image_path:
@@ -163,7 +181,8 @@ class SelfieSegmentation:
 
 
 if __name__ == '__main__':
-    segmentationModule = SegmentationModule(threshold=0.8, bg_image_path='backgrounds')
+    fpsMetric = FPSmetric()
+    segmentationModule = SegmentationModule(threshold=0.5, bg_image_path='backgrounds')
     # selfieSegmentation = SelfieSegmentation(video_path='Selfie_video.mkv', show=True, custom_objects=[segmentationModule])
-    selfieSegmentation = SelfieSegmentation(webcam_id=0, show=True, flip_view=True, custom_objects=[segmentationModule])
+    selfieSegmentation = SelfieSegmentation(webcam_id=0, show=True, flip_view=True, custom_objects=[segmentationModule, fpsMetric])
     selfieSegmentation.run()

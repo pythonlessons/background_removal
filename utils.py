@@ -6,13 +6,31 @@ import cv2
 class FPSmetric:
     """ Measure FPS between calls of this funtion
     """
-    def __init__(self, range_average: int = 30):
+    def __init__(
+        self, 
+        range_average: int = 30,
+        position: typing.Tuple[int, int] = (7, 70),
+        fontFace: int = cv2.FONT_HERSHEY_SIMPLEX,
+        fontScale: int = 3,
+        color: typing.Tuple[int, int, int] = (100, 255, 0),
+        thickness: int = 3,
+        lineType: int = cv2.LINE_AA,
+        ):
+        """
+        """
         self._range_average = range_average
         self._frame_time = 0
         self._prev_frame_time = 0
         self._fps_list = []
 
-    def __call__(self) -> float:
+        self.position = position
+        self.fontFace = fontFace
+        self.fontScale = fontScale
+        self.color = color
+        self.thickness = thickness
+        self.lineType = lineType
+
+    def __call__(self, frame=None) -> float:
         self._prev_frame_time = self._frame_time
         self._frame_time = time.time()
         if not self._prev_frame_time:
@@ -20,7 +38,13 @@ class FPSmetric:
         self._fps_list.append(1/(self._frame_time - self._prev_frame_time))
         self._fps_list = self._fps_list[-self._range_average:]
         
-        return float(np.average(self._fps_list))
+        fps = float(np.average(self._fps_list))
+
+        if frame is None:
+            return fps
+
+        cv2.putText(frame, str(int(fps)), self.position, self.fontFace, self.fontScale, self.color, self.thickness, self.lineType)
+        return frame
 
 def process_image(img: np.ndarray, x32=True) -> np.ndarray:
     h, w = img.shape[:2]
