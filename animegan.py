@@ -1,10 +1,13 @@
 # https://github.com/TachibanaYoshino/AnimeGANv3
+import os
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
 import cv2
 import mediapipe as mp
 import time
 
 import numpy as np
 import onnxruntime as ort
+
 
 def process_image(img, x32=True):
     h, w = img.shape[:2]
@@ -32,7 +35,7 @@ mp_selfie_segmentation = mp.solutions.selfie_segmentation
 
 # For webcam input:
 BG_COLOR = (192, 192, 192) # gray
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 font = cv2.FONT_HERSHEY_SIMPLEX
 frame_time = 0
 prev_frame_time = 0
