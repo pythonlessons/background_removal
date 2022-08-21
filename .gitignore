@@ -1,5 +1,4 @@
-.pyc
+*.pyc
 venv
-*.onnx
 *.mkv
 *.mp4

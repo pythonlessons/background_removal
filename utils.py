@@ -4,7 +4,7 @@ import time
 import cv2
 
 class FPSmetric:
-    """ Measure FPS between calls of this funtion
+    """ Measure FPS between calls of this object
     """
     def __init__(
         self, 
@@ -17,6 +17,14 @@ class FPSmetric:
         lineType: int = cv2.LINE_AA,
         ):
         """
+        Args:
+            range_average: (int) = 30 - number of how many call should be averaged for a result
+            position: (typing.Tuple[int, int]) = (7, 70) - position in a frame where to put text
+            fontFace: (int) = cv2.FONT_HERSHEY_SIMPLEX - cv2 font for text
+            fontScale: (int) = 3 - size of font
+            color: (typing.Tuple[int, int, int]) = (100, 255, 0) - RGB color for text
+            thickness: (int) = 3 - chickness for text
+            lineType: (int) = cv2.LINE_AA - text line type
         """
         self._range_average = range_average
         self._frame_time = 0
@@ -30,7 +38,15 @@ class FPSmetric:
         self.thickness = thickness
         self.lineType = lineType
 
-    def __call__(self, frame=None) -> float:
+    def __call__(self, frame: np.ndarray = None) -> typing.Union[bool, np.ndarray]:
+        """Measure duration between each call and return calculated FPS or frame with added FPS on it
+
+        Args:
+            frame: (np.ndarray) - frame to add FPS text if wanted
+
+        Returns:
+            fps: (float) - fps number if frame not given otherwise return frame (np.ndarray)
+        """
         self._prev_frame_time = self._frame_time
         self._frame_time = time.time()
         if not self._prev_frame_time:
@@ -45,18 +61,3 @@ class FPSmetric:
 
         cv2.putText(frame, str(int(fps)), self.position, self.fontFace, self.fontScale, self.color, self.thickness, self.lineType)
         return frame
-
-def process_image(img: np.ndarray, x32=True) -> np.ndarray:
-    h, w = img.shape[:2]
-    if x32: # resize image to multiple of 32s
-        def to_32s(x):
-            return 256 if x < 256 else x - x%32
-        img = cv2.resize(img, (to_32s(w), to_32s(h)))
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB).astype(np.float32)/ 127.5 - 1.0
-    return img
-
-def post_precess(img: np.ndarray, wh: typing.Tuple[int, int]) -> np.ndarray:
-    img = (img.squeeze()+1.) / 2 * 255
-    img = img.astype(np.uint8)
-    img = cv2.resize(img, (wh[0], wh[1]))
-    return img
