@@ -10,7 +10,7 @@ All this repository is for learning purposes. I cover here how simple is to remo
 - (Optional if have Nvidia GPU): install onnxruntime with GPU support: ```pip install onnxruntime-gpu```
 
 ## How to run basic background removal:
-At this point, when you are looking at this project, I might be already updated this project with more features, but if you want only to run a quick test on your own webcam replace ```the main.py``` code with the following:
+At this point, when you are looking at this project, I might be already updated this project with more features, but if you want only to run a quick test on your own webcam replace the ```main.py``` code with the following:
 ```Python
 # main.py
 from utils import FPSmetric
