@@ -4,13 +4,13 @@ import typing
 import numpy as np
 import mediapipe as mp
 
-class MPSegmentations:
+class MPSegmentation:
     """Object to create and do mediapipe selfie segmentation, more about it:
     https://google.github.io/mediapipe/solutions/selfie_segmentation.html
     """
     def __init__(
         self,
-        bg_color: typing.Tuple[int, int, int] = (192, 192, 192), # gray
+        bg_blur_ratio: typing.Tuple[int, int] = (35, 35),
         bg_image: typing.Optional[np.ndarray] = None,
         threshold: float = 0.5,
         model_selection: bool = 1,
@@ -18,16 +18,16 @@ class MPSegmentations:
         ) -> None:
         """
         Args:
-            bg_color: (typing.Tuple) = (192, 192, 192) - background RGB color for removed background, gray is default
+            bg_blur_ratio: (typing.Tuple) = (35, 35) - ratio to apply for cv2.GaussianBlur
             bg_image: (typing.Optional) = None - background color to use instead of gray color in background
-            threshold: (float) = 0.5 - accuracy border threshold seperating background and foreground, need to play to get best results
+            threshold: (float) = 0.5 - accuracy border threshold separating background and foreground, necessary to play to get the best results
             model_selection: (bool) = 1 - generas or landscape model selection for segmentations mask
             bg_images_path: (str) = None - path to folder for background images
         """
         self.mp_selfie_segmentation = mp.solutions.selfie_segmentation
         self.selfie_segmentation = self.mp_selfie_segmentation.SelfieSegmentation(model_selection=model_selection)
 
-        self.bg_color = bg_color
+        self.bg_blur_ratio = bg_blur_ratio
         self.bg_image = bg_image
         self.threshold = threshold
 
@@ -68,9 +68,10 @@ class MPSegmentations:
         condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > self.threshold
 
         if self.bg_image is None:
-            self.bg_image = np.zeros(frame.shape, dtype=np.uint8)
-            self.bg_image[:] = self.bg_color
+            background = cv2.GaussianBlur(frame, self.bg_blur_ratio, 0)
+        else:
+            background = self.bg_image
     
-        frame = np.where(condition, frame, cv2.resize(self.bg_image, frame.shape[:2][::-1]))
+        frame = np.where(condition, frame, cv2.resize(background, frame.shape[:2][::-1]))
  
         return frame

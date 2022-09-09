@@ -11,14 +11,18 @@ class AnimeGAN:
     def __init__(
         self,
         model_path: str = '',
+        downsize_ratio: float = 1.0,
         ) -> None:
         """
         Args:
             model_selection: (bool) - 1 - for low distance, 0 - for far distance face detectors
             confidence: (float) - confidence for face detector, when detection are confirmed
+            downsize_ratio: (float) - ratio to downsize input frame for faster inference
         """
         if not os.path.exists(model_path):
             raise Exception(f"Model doesn't exists in {model_path}")
+        
+        self.downsize_ratio = downsize_ratio
 
         providers = ['CUDAExecutionProvider'] if ort.get_device() == "GPU" else ['CPUExecutionProvider']
 
@@ -30,7 +34,7 @@ class AnimeGAN:
     def process_frame(self, frame: np.ndarray, x32: bool = True) -> np.ndarray:
         h, w = frame.shape[:2]
         if x32: # resize image to multiple of 32s
-            frame = cv2.resize(frame, (self.to_32s(w), self.to_32s(h)))
+            frame = cv2.resize(frame, (self.to_32s(int(w*self.downsize_ratio)), self.to_32s(int(h*self.downsize_ratio))))
         frame = frame.astype(np.float32) / 127.5 - 1.0
         return frame
 

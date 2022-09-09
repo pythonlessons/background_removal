@@ -1,6 +1,3 @@
-from platform import python_branch
-
-
 opencv-python
 mediapipe
 stow
