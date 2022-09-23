@@ -74,7 +74,7 @@ class Engine:
 
         return frame
 
-    def display(self, frame: np.ndarray, webcam: bool = False) -> bool:
+    def display(self, frame: np.ndarray, webcam: bool = False, waitTime: int = 1) -> bool:
         """Display current frame if self.show = True
         When displaying webcam you can control the background images
 
@@ -87,7 +87,7 @@ class Engine:
         """
         if self.show:
             cv2.imshow('Remove Background', frame)
-            k = cv2.waitKey(1)
+            k = cv2.waitKey(waitTime)
             if k & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
                 return False
@@ -120,6 +120,8 @@ class Engine:
         extension = stow.extension(self.image_path)
         output_path = self.image_path.replace(f".{extension}", f"_{self.output_extension}.{extension}")
         cv2.imwrite(output_path, frame)
+
+        self.display(frame, waitTime=0)
 
         return frame
 
