@@ -22,7 +22,7 @@ class MPSegmentation:
             bg_blur_ratio: (typing.Tuple) = (35, 35) - ratio to apply for cv2.GaussianBlur
             bg_image: (typing.Optional) = None - background color to use instead of gray color in background
             threshold: (float) = 0.5 - accuracy border threshold separating background and foreground, necessary to play to get the best results
-            model_selection: (bool) = 1 - generas or landscape model selection for segmentations mask
+            model_selection: (bool) = 1 - general or landscape model selection for segmentations mask
             bg_images_path: (str) = None - path to folder for background images
             bg_color: (typing.Tuple[int, int, int]) = None - color to replace background with
         """
