@@ -10,16 +10,19 @@ class PencilSketch:
         blur_simga: int = 5,
         ksize: typing.Tuple[int, int] = (0, 0),
         sharpen_value: int = None,
+        kernel: np.ndarray = None,
         ) -> None:
         """
         Args:
             blur_simga: (int) - sigma ratio to apply for cv2.GaussianBlur
             ksize: (float) - ratio to apply for cv2.GaussianBlur
+            sharpen_value: (int) - sharpen value to apply in predefined kernel array
+            kernel: (np.ndarray) - custom kernel to apply in sharpen function
         """
         self.blur_simga = blur_simga
         self.ksize = ksize
         self.sharpen_value = sharpen_value
-        self.kernel = np.array([[0, -1, 0], [-1, sharpen_value,-1], [0, -1, 0]])
+        self.kernel = np.array([[0, -1, 0], [-1, sharpen_value,-1], [0, -1, 0]]) if kernel == None else kernel
 
     def dodge(self, front: np.ndarray, back: np.ndarray) -> np.ndarray:
         """The formula comes from https://en.wikipedia.org/wiki/Blend_modes
@@ -36,7 +39,7 @@ class PencilSketch:
         return result.astype('uint8')
 
     def sharpen(self, image: np.ndarray) -> np.ndarray:
-        """Sharpen image by defined kernel
+        """Sharpen image by defined kernel size
         Args:
             image: (np.ndarray) - image to be sharpened
 
@@ -63,7 +66,6 @@ class PencilSketch:
         inverted_img = 255 - grayscale
 
         blur_img = cv2.GaussianBlur(inverted_img, ksize=self.ksize, sigmaX=self.blur_simga)
-
 
         final_img = self.dodge(blur_img, grayscale)
 
