@@ -70,7 +70,7 @@ class MPSegmentation:
         results = self.selfie_segmentation.process(frame)
         condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > self.threshold
 
-        if self.bg_image:
+        if self.bg_image is not None:
             background = self.bg_image
         elif self.bg_color:
             background = np.ones(frame.shape, np.uint8)[...,:] * self.bg_color
