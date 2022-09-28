@@ -106,24 +106,36 @@ class Engine:
 
         return True
 
-    def process_image(self) -> np.ndarray:
-        """Function do to processing with given image in image_path
+    def process_image(
+        self, 
+        image: typing.Union[str, np.ndarray] = None, 
+        output_path: str = None
+        ) -> np.ndarray:
+        """The function does to processing with the given image or image path
+
+        Args:
+            frame: (typing.Union[str, np.ndarray]) - we can pass whether an image path or image numpy buffer
+            output_path: (str) - we can specify where processed image will be saved
 
         Returns:
             frame: (np.ndarray) - final processed image
         """
-        if not stow.exists(self.image_path):
-            raise Exception(f"Given image path doesn't exists {self.image_path}")
+        if image is not None and isinstance(image, str):
+            if not stow.exists(image):
+                raise Exception(f"Given image path doesn't exist {self.image_path}")
+            else:
+                extension = stow.extension(image)
+                if output_path is None:
+                    output_path = image.replace(f".{extension}", f"_{self.output_extension}.{extension}")
+                image = cv2.imread(image)
 
-        frame = self.custom_processing(self.flip(cv2.imread(self.image_path)))
+        image = self.custom_processing(self.flip(image))
 
-        extension = stow.extension(self.image_path)
-        output_path = self.image_path.replace(f".{extension}", f"_{self.output_extension}.{extension}")
-        cv2.imwrite(output_path, frame)
+        cv2.imwrite(output_path, image)
 
-        self.display(frame, waitTime=0)
+        self.display(image, waitTime=0)
 
-        return frame
+        return image
 
     def process_webcam(self) -> None:
         """Process webcam stream for given webcam_id
@@ -215,6 +227,6 @@ class Engine:
         if self.video_path:
             self.process_video()
         elif self.image_path:
-            self.process_image()
+            self.process_image(self.image_path)
         else:
             self.process_webcam()
