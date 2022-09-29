@@ -79,4 +79,4 @@ class MPSegmentation:
 
         frame = np.where(condition, frame, cv2.resize(background, frame.shape[:2][::-1]))
  
-        return frame
+        return frame.astype(np.uint8)
