@@ -41,3 +41,4 @@ You can run it by typing ```python main.py``` in a terminal.
 
 ## Detailed Tutorials:
 - [Selfie background remove or blur with Python](https://pylessons.com/remove-background)
+- [Real Time CPU face detection tutorial](https://pylessons.com/face-detection)
