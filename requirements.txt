@@ -4,3 +4,5 @@ stow
 numpy
 tqdm
 onnxruntime
+tf2onnx
+tensorflow==2.*
