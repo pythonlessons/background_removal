@@ -148,9 +148,12 @@ class Engine:
                 print("Ignoring empty camera frame.")
                 continue
 
+            if return_frame:
+                break
+
             frame = self.custom_processing(self.flip(frame))
 
-            if not self.display(frame, webcam=True) or return_frame:
+            if not self.display(frame, webcam=True):
                 break
 
         else:

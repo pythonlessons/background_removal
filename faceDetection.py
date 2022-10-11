@@ -69,7 +69,7 @@ class MPFaceDetection:
 
         if return_tlbr:
             if results.detections:
-                tlbr = self.tlbr(frame, results.detections)
+                return self.tlbr(frame, results.detections)
             return []
 
         if results.detections:
