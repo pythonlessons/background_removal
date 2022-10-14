@@ -7,6 +7,13 @@ import onnxruntime as ort
 class AnimeGAN:
     """ Object to image animation using AnimeGAN models
     https://github.com/TachibanaYoshino/AnimeGANv2
+
+    onnx models:
+    'https://docs.google.com/uc?export=download&id=1VPAPI84qaPUCHKHJLHiMK7BP_JE66xNe' AnimeGAN_Hayao.onnx
+    'https://docs.google.com/uc?export=download&id=17XRNQgQoUAnu6SM5VgBuhqSBO4UAVNI1' AnimeGANv2_Hayao.onnx
+    'https://docs.google.com/uc?export=download&id=10rQfe4obW0dkNtsQuWg-szC4diBzYFXK' AnimeGANv2_Shinkai.onnx
+    'https://docs.google.com/uc?export=download&id=1X3Glf69Ter_n2Tj6p81VpGKx7U4Dq-tI' AnimeGANv2_Paprika.onnx
+
     """
     def __init__(
         self,
