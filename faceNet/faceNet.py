@@ -93,7 +93,7 @@ class FaceNet:
             cv2.imwrite(output_path, crop)
             print("Crop saved to:", output_path)
 
-        self.load_anchors(output_dir)
+        self.anchors = self.load_anchors(output_dir)
         
         return True
 
@@ -107,6 +107,9 @@ class FaceNet:
             anchors: (dict) - dictionary with anchor names as keys and anchor encodings as values
         """
         anchors = {}
+        if not stow.exists(faces_path):
+            return {}
+
         for face_path in stow.ls(faces_path):
             anchors[stow.basename(face_path)] = self.encode(cv2.imread(face_path.path))
 
