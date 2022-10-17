@@ -82,3 +82,4 @@ You can run it by typing ```python main.py``` in a terminal.
 - [Selfie background remove or blur with Python](https://pylessons.com/remove-background)
 - [Real Time CPU face detection tutorial](https://pylessons.com/face-detection)
 - [Pencil sketch image with Python](https://pylessons.com/pencil-sketch)
+- [Face recognition with Python](https://pylessons.com/face-recognition)
