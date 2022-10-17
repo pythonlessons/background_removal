@@ -137,16 +137,19 @@ class Engine:
 
         return image
 
-    def process_webcam(self) -> None:
+    def process_webcam(self, return_frame: bool = False) -> typing.Union[None, np.ndarray]:
         """Process webcam stream for given webcam_id
         """
         # Create a VideoCapture object for given webcam_id
         cap = cv2.VideoCapture(self.webcam_id)
         while cap.isOpened():  
             success, frame = cap.read()
-            if not success:
+            if not success or frame is None:
                 print("Ignoring empty camera frame.")
                 continue
+
+            if return_frame:
+                break
 
             frame = self.custom_processing(self.flip(frame))
 
@@ -157,6 +160,7 @@ class Engine:
             raise Exception(f"Webcam with ID ({self.webcam_id}) can't be opened")
 
         cap.release()
+        return frame
 
     def check_video_frames_range(self, fnum):
         """Not to waste resources this function processes only specified range of video frames

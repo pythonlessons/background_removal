@@ -27,6 +27,7 @@ You can run it by typing ```python main.py``` in a terminal.
 
 ## Run basic MediaPipe face detection:
 ```Python
+# main.py
 from utils import FPSmetric
 from faceDetection import MPFaceDetection
 from engine import Engine
@@ -39,6 +40,46 @@ if __name__ == '__main__':
 ```
 You can run it by typing ```python main.py``` in a terminal.
 
+## Test "Pencil" sketch with Python on saved image:
+```Python
+# main.py
+from pencilSketch import PencilSketch
+from engine import Engine
+
+if __name__ == '__main__': 
+    pencilSketch = PencilSketch(blur_simga=5)
+    selfieSegmentation = Engine(image_path='data/porche.jpg', show=True, custom_objects=[pencilSketch])
+    selfieSegmentation.run()
+```
+You can run it by typing ```python main.py``` in a terminal.
+
+## Test facial recognition example on webcam stream
+```Python
+# main.py
+from utils import FPSmetric
+from engine import Engine
+from faceDetection import MPFaceDetection
+from faceNet.faceNet import FaceNet
+
+if __name__ == '__main__':
+    facenet = FaceNet(
+        detector = MPFaceDetection(),
+        onnx_model_path = "models/faceNet.onnx", 
+        anchors = "faces",
+        force_cpu = True,
+    )
+    engine = Engine(webcam_id=0, show=True, custom_objects=[facenet, FPSmetric()])
+
+    # save first face crop as anchor, otherwise don't use
+    while not facenet.detect_save_faces(engine.process_webcam(return_frame=True), output_dir="faces"):
+        continue
+
+    engine.run()
+```
+You can run it by typing ```python main.py``` in a terminal.
+
 ## Detailed Tutorials:
 - [Selfie background remove or blur with Python](https://pylessons.com/remove-background)
 - [Real Time CPU face detection tutorial](https://pylessons.com/face-detection)
+- [Pencil sketch image with Python](https://pylessons.com/pencil-sketch)
+- [Face recognition with Python](https://pylessons.com/face-recognition)

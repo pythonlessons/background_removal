@@ -30,7 +30,6 @@ class MPFaceDetection:
         self.mp_face_detection = mp.solutions.face_detection
         self.face_detection = self.mp_face_detection.FaceDetection(model_selection=model_selection, min_detection_confidence=confidence)
 
-
     def tlbr(self, frame: np.ndarray, mp_detections: typing.List) -> np.ndarray:
         """Return coorinates in typing.Iterable([[Top, Left, Bottom, Right]])
 
@@ -46,13 +45,12 @@ class MPFaceDetection:
         for detection in mp_detections:
             height = int(detection.location_data.relative_bounding_box.height * frame_height)
             width = int(detection.location_data.relative_bounding_box.width * frame_width)
-            left = int(detection.location_data.relative_bounding_box.xmin * frame_width)
-            top = int(detection.location_data.relative_bounding_box.ymin * frame_height)
+            left = max(0 ,int(detection.location_data.relative_bounding_box.xmin * frame_width))
+            top = max(0 ,int(detection.location_data.relative_bounding_box.ymin * frame_height))
 
             detections.append([top, left, top + height, left + width])
 
         return np.array(detections)
-
 
     def __call__(self, frame: np.ndarray, return_tlbr: bool = False) -> np.ndarray:
         """Main function to do face detection
@@ -69,10 +67,12 @@ class MPFaceDetection:
         """
         results = self.face_detection.process(frame)
 
-        if results.detections:
-            if return_tlbr:
+        if return_tlbr:
+            if results.detections:
                 return self.tlbr(frame, results.detections)
+            return []
 
+        if results.detections:
             if self.mp_drawing_utils:
                 # Draw face detections of each face using media pipe drawing utils.
                 for detection in results.detections:

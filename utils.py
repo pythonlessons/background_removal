@@ -50,7 +50,7 @@ class FPSmetric:
         self._prev_frame_time = self._frame_time
         self._frame_time = time.time()
         if not self._prev_frame_time:
-            return 0
+            return frame
         self._fps_list.append(1/(self._frame_time - self._prev_frame_time))
         self._fps_list = self._fps_list[-self._range_average:]
         
