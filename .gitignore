@@ -3,3 +3,6 @@ venv
 *.mkv
 *.mp4
 models/face*
+
+*.onnx
+*.h5
