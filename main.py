@@ -1,4 +1,3 @@
-from utils import FPSmetric
 from engine import Engine
 from selfieSegmentation import MPSegmentation
 from faceDetection import MPFaceDetection

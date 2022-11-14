@@ -5,8 +5,15 @@ import numpy as np
 import onnxruntime as ort
 
 class AnimeGAN:
-    """Object to create and do mediapipe face detection, more about it:
+    """ Object to image animation using AnimeGAN models
     https://github.com/TachibanaYoshino/AnimeGANv2
+
+    onnx models:
+    'https://docs.google.com/uc?export=download&id=1VPAPI84qaPUCHKHJLHiMK7BP_JE66xNe' AnimeGAN_Hayao.onnx
+    'https://docs.google.com/uc?export=download&id=17XRNQgQoUAnu6SM5VgBuhqSBO4UAVNI1' AnimeGANv2_Hayao.onnx
+    'https://docs.google.com/uc?export=download&id=10rQfe4obW0dkNtsQuWg-szC4diBzYFXK' AnimeGANv2_Shinkai.onnx
+    'https://docs.google.com/uc?export=download&id=1X3Glf69Ter_n2Tj6p81VpGKx7U4Dq-tI' AnimeGANv2_Paprika.onnx
+
     """
     def __init__(
         self,
@@ -15,8 +22,7 @@ class AnimeGAN:
         ) -> None:
         """
         Args:
-            model_selection: (bool) - 1 - for low distance, 0 - for far distance face detectors
-            confidence: (float) - confidence for face detector, when detection are confirmed
+            model_path: (str) - path to onnx model file
             downsize_ratio: (float) - ratio to downsize input frame for faster inference
         """
         if not os.path.exists(model_path):
@@ -32,6 +38,15 @@ class AnimeGAN:
         return 256 if x < 256 else x - x%32
 
     def process_frame(self, frame: np.ndarray, x32: bool = True) -> np.ndarray:
+        """ Function to process frame to fit model input as 32 multiplier and resize to fit model input
+
+        Args:
+            frame: (np.ndarray) - frame to process
+            x32: (bool) - if True, resize frame to 32 multiplier
+
+        Returns:
+            frame: (np.ndarray) - processed frame
+        """
         h, w = frame.shape[:2]
         if x32: # resize image to multiple of 32s
             frame = cv2.resize(frame, (self.to_32s(int(w*self.downsize_ratio)), self.to_32s(int(h*self.downsize_ratio))))
@@ -39,6 +54,15 @@ class AnimeGAN:
         return frame
 
     def post_process(self, frame: np.ndarray, wh: typing.Tuple[int, int]) -> np.ndarray:
+        """ Convert model float output to uint8 image resized to original frame size
+
+        Args:
+            frame: (np.ndarray) - AnimeGaAN output frame
+            wh: (typing.Tuple[int, int]) - original frame size
+
+        Returns:
+            frame: (np.ndarray) - original size animated image
+        """
         frame = (frame.squeeze() + 1.) / 2 * 255
         frame = frame.astype(np.uint8)
         frame = cv2.resize(frame, (wh[0], wh[1]))
