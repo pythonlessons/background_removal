@@ -88,6 +88,7 @@ if __name__ == '__main__':
     engine = Engine(webcam_id=0, show=True, custom_objects=[animegan])
     engine.run()
 ```
+You can run it by typing python main.py in a terminal.
 
 ## Detailed Tutorials:
 - [Selfie background remove or blur with Python](https://pylessons.com/remove-background)
