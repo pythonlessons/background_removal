@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 import cv2
 import stow
@@ -74,6 +74,39 @@ class unetSegmentation:
 
         return True
 
+    def normalise(self, image, mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]):
+        # https://blog.csdn.net/qq_40035462/article/details/123786809
+        image = image.astype(np.float32)
+        image = image / 255.0
+        image = (image - mean) / std
+        return image
+
+    def process_frame(self, frame: np.ndarray, original_frame, w=960, h=544) -> np.ndarray:
+
+        img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        img = self.normalise(img)
+        img = cv2.resize(img, (w, h), cv2.INTER_LINEAR)
+        img = np.transpose(img, (2, 0, 1)).astype(np.float32)
+        img = np.expand_dims(img, axis=0)
+        pred = self.ort_sess.run(None, {self.ort_sess._inputs_meta[0].name: img})[0]
+        mask = pred[0, 0]
+
+        matting1 = cv2.resize(mask, (frame.shape[1], frame.shape[0]), cv2.INTER_NEAREST)
+        matting = np.expand_dims(matting1, axis=-1)
+
+        bg_frame = np.ones(frame.shape, np.uint8)[...,:] * self.bg_color
+        bg_frame = bg_frame.astype(np.uint8)
+
+        final_frame = matting * original_frame + (1 - matting) * bg_frame
+        final_frame = final_frame.astype(np.uint8)
+
+        return final_frame
+        
+        condition = np.stack((matting1,) * 3, axis=-1) > self.threshold
+        matting_frame = np.where(condition, original_frame, bg_frame)
+
+        return matting_frame
+
     def __call__(self, frame: np.ndarray) -> np.ndarray:
         """Main function to process selfie semgentation on each call
 
@@ -83,31 +116,7 @@ class unetSegmentation:
         Returns:
             frame: (np.ndarray) - processed frame with selfie segmentation
         """
-        # results = self.selfie_segmentation.process(frame)
-        img = cv2.resize(frame, (512, 288), cv2.INTER_AREA)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img = img.transpose((2, 0, 1)).astype(np.float32)
-        img = (img - 127.5) / 127.5
-        img = np.expand_dims(img, axis=0)
-        mask = self.ort_sess.run(None, {self.ort_sess._inputs_meta[0].name: img})[0][0][0]
+        matting_frame1 = self.process_frame(frame, frame, w=960, h=544)
+        matting_frame2 = self.process_frame(matting_frame1, frame, w=960, h=544)
 
-        segmentation_mask = cv2.resize(mask*255, frame.shape[:2][::-1]).astype(np.uint8)
-
-        # img_input = np.expand_dims(cv2.resize(frame, self.input_shape[1:]).astype(dtype="float32"), axis=0)
-
-        # mask = self.ort_sess.run(None, {self.ort_sess._inputs_meta[0].name: img_input/255})[0][0]
-
-        # segmentation_mask = cv2.resize(mask*255, frame.shape[:2][::-1]).astype(np.uint8)
-
-        condition = np.stack((segmentation_mask,) * 3, axis=-1) > self.threshold
-
-        if self.bg_image is not None:
-            background = self.bg_image
-        elif self.bg_color:
-            background = np.ones(frame.shape, np.uint8)[...,:] * self.bg_color
-        else:
-            background = cv2.GaussianBlur(frame, self.bg_blur_ratio, 0)
-
-        frame = np.where(condition, frame, cv2.resize(background, frame.shape[:2][::-1]))
- 
-        return frame.astype(np.uint8)
+        return matting_frame2
