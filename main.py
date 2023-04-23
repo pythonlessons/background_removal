@@ -2,11 +2,13 @@ from utils import FPSmetric
 from engine import Engine
 from selfieSegmentation import MPSegmentation
 from faceDetection import MPFaceDetection
-from faceNet. faceNet import FaceNet
+from faceNet.faceNet import FaceNet
+from locker import Locker
 
 if __name__ == '__main__':
     segmentationModule = MPSegmentation(threshold=0.3, bg_images_path='')#, bg_blur_ratio=(45, 45), bg_color= (255, 255, 255))
     facenet = FaceNet(
+        locker = Locker(),
         detector = MPFaceDetection(),
         onnx_model_path = "models/faceNet.onnx",
         anchors = "faces",
@@ -17,7 +19,7 @@ if __name__ == '__main__':
 
 
     # save first face crop as anchor, otherwise don't use
-    #while not facenet.detect_save_faces(engine.process_webcam(return_frame=True), output_dir="faces"):
-    #    continue
+    while not facenet.detect_save_faces(engine.process_webcam(return_frame=True), output_dir="faces"):
+        continue
     
     engine.run()

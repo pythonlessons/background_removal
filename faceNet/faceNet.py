@@ -9,6 +9,7 @@ class FaceNet:
     """
     def __init__(
         self, 
+        locker: object,
         detector: object,
         onnx_model_path: str = "models/faceNet.onnx", 
         anchors: typing.Union[str, dict] = 'faces',
@@ -30,6 +31,7 @@ class FaceNet:
         if not stow.exists(onnx_model_path):
             raise Exception(f"Model doesn't exists in {onnx_model_path}")
 
+        self.locker = locker
         self.detector = detector
         self.threshold = threshold
         self.color = color
@@ -185,5 +187,6 @@ class FaceNet:
                 face_crops[key]["name"] = list(self.anchors.keys())[np.argmax(distances)]
 
         frame = self.draw(frame, face_crops)
+        self.locker.onFaceNetPipeline(face_crops)
 
         return frame
