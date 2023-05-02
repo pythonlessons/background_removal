@@ -1,6 +1,5 @@
 from utils import FPSmetric
 from engine import Engine
-from selfieSegmentation import MPSegmentation
 from faceDetection import MPFaceDetection
 from faceNet.faceNet import FaceNet
 from locker import Locker

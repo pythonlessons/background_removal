@@ -4,7 +4,7 @@ import typing
 import numpy as np
 from tqdm import tqdm 
 
-from selfieSegmentation import MPSegmentation
+#from selfieSegmentation import MPSegmentation
 
 class Engine:
     """Object to process webcam stream, video source or images
@@ -92,7 +92,8 @@ class Engine:
                 cv2.destroyAllWindows()
                 return False
 
-            if webcam:
+            #istrinta nes mpsegmentation ner
+            """ if webcam:
                 if k & 0xFF == ord('a'):
                     for custom_object in self.custom_objects:
                         # change background to next with keyboar 'a' button
@@ -102,7 +103,7 @@ class Engine:
                     for custom_object in self.custom_objects:
                         # change background to previous with keyboar 'd' button
                         if isinstance(custom_object, MPSegmentation):
-                            custom_object.change_image(False)
+                            custom_object.change_image(False) """
 
         return True
 
