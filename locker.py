@@ -3,11 +3,11 @@ import os
 import dbus
 
 class Locker:
-    noRecognizedFacesFrom = None
-    deviceLocked = False
-    screenSaverSetActive = None
-
     def __init__(self):
+        self.noRecognizedFacesFrom = None
+        self.isRecognizedFacesFrom = None
+        self.deviceLocked = False
+        screenSaverSetActive = None
         session_bus = dbus.SessionBus()
         proxy_obj = session_bus.get_object('org.gnome.ScreenSaver', '/org/gnome/ScreenSaver')
         interface = dbus.Interface(proxy_obj, 'org.gnome.ScreenSaver')
@@ -16,23 +16,29 @@ class Locker:
     def onFaceNetPipeline(self, face_crops) -> None:
         if self.isFaceCropsEmpty(face_crops):
             self.noRecognizedFacesFrom = None
+            self.isRecognizedFacesFrom = None
             return
 
         if self.doesFaceCropContainKnownFaces(face_crops):
             self.noRecognizedFacesFrom = None
 
-            if self.deviceLocked:
+            if self.isRecognizedFacesFrom is None:
+                self.isRecognizedFacesFrom = time.time()
+
+            secondsSinceKnownFace = time.time() - self.isRecognizedFacesFrom
+            if secondsSinceKnownFace > 2 and self.deviceLocked:
                 self.unlockDevice()
+
             return
 
-        if self.noRecognizedFacesFrom == None:
+        if self.noRecognizedFacesFrom is None:
             self.noRecognizedFacesFrom = time.time()
+            self.isRecognizedFacesFrom = None
             return
 
         secondsSinceNoKnownFace = time.time() - self.noRecognizedFacesFrom
-        if secondsSinceNoKnownFace > 2 and self.deviceLocked == False:
+        if secondsSinceNoKnownFace > 2 and not self.deviceLocked:
             self.lockDevice()
-            return
 
     def isFaceCropsEmpty(self, face_crops) -> bool:
         return not bool(face_crops)
@@ -47,12 +53,10 @@ class Locker:
     
     def lockDevice(self):
         print("Locking user screen")
-        self.deviceLocked = True;
+        self.deviceLocked = True
         os.system('gnome-screensaver-command -l')
 
     def unlockDevice(self):
         print("Unlocking user screen")
-        self.deviceLocked = False;
+        self.deviceLocked = False
         self.screenSaverSetActive(False)
-
-
