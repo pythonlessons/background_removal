@@ -7,7 +7,7 @@ class Locker:
         self.noRecognizedFacesFrom = None
         self.isRecognizedFacesFrom = None
         self.deviceLocked = False
-        screenSaverSetActive = None
+        self.screenSaverSetActive = None
         session_bus = dbus.SessionBus()
         proxy_obj = session_bus.get_object('org.gnome.ScreenSaver', '/org/gnome/ScreenSaver')
         interface = dbus.Interface(proxy_obj, 'org.gnome.ScreenSaver')
