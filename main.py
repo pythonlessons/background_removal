@@ -18,6 +18,6 @@ if __name__ == '__main__':
         threshold=0.3,
         force_cpu=True,
     )
-    engine = Engine(webcam_id=0, show=args.qshow, custom_objects=[facenet, FPSmetric()])
+    engine = Engine(webcam_id=0, show=args.show, custom_objects=[facenet, FPSmetric()])
 
     engine.run()
