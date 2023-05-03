@@ -1,3 +1,4 @@
+import argparse
 from utils import FPSmetric
 from engine import Engine
 from faceDetection import MPFaceDetection
@@ -5,19 +6,18 @@ from faceNet.faceNet import FaceNet
 from locker import Locker
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--show', default=False, type=bool, help='Show camera feed')
+    args = parser.parse_args()
+
     facenet = FaceNet(
-        locker = Locker(),
-        detector = MPFaceDetection(),
-        onnx_model_path = "models/faceNet.onnx",
-        anchors = "faces",
+        locker=Locker(),
+        detector=MPFaceDetection(),
+        onnx_model_path="models/faceNet.onnx",
+        anchors="faces",
         threshold=0.3,
-        force_cpu = True,
+        force_cpu=True,
     )
-    engine = Engine(webcam_id=0, show=True, custom_objects=[facenet, FPSmetric()])
+    engine = Engine(webcam_id=0, show=args.qshow, custom_objects=[facenet, FPSmetric()])
 
-
-    # save first face crop as anchor, otherwise don't use
-    #while not facenet.detect_save_faces(engine.process_webcam(return_frame=True), output_dir="faces"):
-    #    continue
-    
     engine.run()
