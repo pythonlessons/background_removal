@@ -8,6 +8,7 @@ class Locker:
         self.isRecognizedFacesFrom = None
         self.deviceLocked = False
         self.screenSaverSetActive = None
+        self.emptyFaceCropTime = None
         session_bus = dbus.SessionBus()
         proxy_obj = session_bus.get_object('org.gnome.ScreenSaver', '/org/gnome/ScreenSaver')
         interface = dbus.Interface(proxy_obj, 'org.gnome.ScreenSaver')
@@ -17,7 +18,17 @@ class Locker:
         if self.isFaceCropsEmpty(face_crops):
             self.noRecognizedFacesFrom = None
             self.isRecognizedFacesFrom = None
+            if self.emptyFaceCropTime is None:
+                self.emptyFaceCropTime = time.time()
+
+            secondsSinceEmptyFaceCrop = time.time() - self.emptyFaceCropTime
+            if secondsSinceEmptyFaceCrop > 10 and not self.deviceLocked:
+                self.lockDevice2()
+                self.emptyFaceCropTime = None
+
             return
+
+        self.emptyFaceCropTime = None
 
         if self.doesFaceCropContainKnownFaces(face_crops):
             self.noRecognizedFacesFrom = None
@@ -54,9 +65,14 @@ class Locker:
     def lockDevice(self):
         print("Locking user screen")
         self.deviceLocked = True
-        os.system('gnome-screensaver-command -l')
+        #os.system('gnome-screensaver-command -l')
+
+    def lockDevice2(self):
+        print("Locking user screen because of inactivity")
+        self.deviceLocked = True
+        #os.system('gnome-screensaver-command -l')
 
     def unlockDevice(self):
         print("Unlocking user screen")
         self.deviceLocked = False
-        self.screenSaverSetActive(False)
+        #self.screenSaverSetActive(False)
