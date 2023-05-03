@@ -1,6 +1,9 @@
 import time
 import os
 import dbus
+from engine import Engine
+
+engine = Engine()
 
 class Locker:
     def __init__(self):
@@ -65,6 +68,7 @@ class Locker:
     def lockDevice(self):
         print("Locking user screen")
         self.deviceLocked = True
+        #engine.capture_webcam(save_dir="unauthorized/")
         #os.system('gnome-screensaver-command -l')
 
     def lockDevice2(self):

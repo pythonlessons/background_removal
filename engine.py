@@ -1,6 +1,7 @@
 import cv2
 import stow
 import typing
+import os
 import numpy as np
 from tqdm import tqdm 
 
@@ -153,6 +154,46 @@ class Engine:
                 break
 
             frame = self.custom_processing(self.flip(frame))
+
+            if not self.display(frame, webcam=True):
+                break
+
+        else:
+            raise Exception(f"Webcam with ID ({self.webcam_id}) can't be opened")
+
+        cap.release()
+        return frame
+
+    def capture_webcam(self, return_frame: bool = False, save_dir: str = None) -> typing.Union[None, np.ndarray]:
+        # Create a VideoCapture object for given webcam_id
+        cap = cv2.VideoCapture(self.webcam_id)
+        while cap.isOpened():  
+            success, frame = cap.read()
+            if not success or frame is None:
+                print("Ignoring empty camera frame.")
+                continue
+
+            if return_frame:
+                break
+
+            frame = self.custom_processing(self.flip(frame))
+
+            if save_dir:
+                # Check if the save directory exists, create it if it doesn't
+                if not os.path.exists(save_dir):
+                    os.makedirs(save_dir)
+
+                # Count the number of existing images in the directory
+                image_count = len(os.listdir(save_dir))
+
+                # Construct the filename for the new image
+                filename = f"unauthorized_{image_count}.jpg"
+                filepath = os.path.join(save_dir, filename)
+
+                # Save the image to the specified directory with the constructed filename
+                cv2.imwrite(filepath, frame)
+
+                print(f"Image saved to {filepath}")
 
             if not self.display(frame, webcam=True):
                 break
