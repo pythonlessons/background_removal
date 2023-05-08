@@ -75,38 +75,52 @@ class Engine:
 
         return frame
 
-    def display(self, frame: np.ndarray, webcam: bool = False, waitTime: int = 1) -> bool:
+    def capture_and_save(self):
+        cap = cv2.VideoCapture(self.webcam_id)
+
+        # Capture frame-by-frame
+        ret, frame = cap.read()
+
+        # Save frame
+        filename = f"unauthorised_{self.capture_counter}.png"
+        cv2.imwrite(filename, frame)
+        self.capture_counter += 1 # increment capture counter
+
+        # When everything done, release the capture
+        cap.release()
+        cv2.destroyAllWindows()
+        cv2.waitKey(1)
+
+
+    def display(self, frame: np.ndarray, webcam: bool = False, waitTime: int = 1, stop_display: bool = False) -> bool:
         """Display current frame if self.show = True
         When displaying webcam you can control the background images
 
         Args:
             frame: (np.ndarray) - frame to be displayed
-            webcam: (bool) - Add aditional function for webcam. Keyboard 'a' for next or 'd' for previous
+            webcam: (bool) - Add additional function for webcam. Keyboard 'a' for next or 'd' for previous
+            waitTime: (int) - Time delay (in milliseconds) for the window to wait for user input
+            stop_display: (bool) - Flag to indicate whether to stop displaying frames or not
 
         Returns:
-            (bool) - Teturn True if no keyboard "Quit" interruption
+            (bool) - Return True if no keyboard "Quit" interruption
         """
-        if self.show:
+        if self.show and not stop_display:
             cv2.imshow('Remove Background', frame)
             k = cv2.waitKey(waitTime)
-            if k & 0xFF == ord('q'):
+
+            if k == 99: # if 'c' key is pressed, capture and save image
+                self.capture_and_save()
+
+            if k & 0xFF == ord('q'): #if self.stop_display = True:
                 cv2.destroyAllWindows()
                 return False
 
-            #istrinta nes mpsegmentation ner
-            """ if webcam:
-                if k & 0xFF == ord('a'):
-                    for custom_object in self.custom_objects:
-                        # change background to next with keyboar 'a' button
-                        if isinstance(custom_object, MPSegmentation):
-                            custom_object.change_image(True)
-                elif k & 0xFF == ord('d'):
-                    for custom_object in self.custom_objects:
-                        # change background to previous with keyboar 'd' button
-                        if isinstance(custom_object, MPSegmentation):
-                            custom_object.change_image(False) """
-
         return True
+
+    def stop_display_frames(self):
+        self.stop_display = True
+        cv2.destroyAllWindows()
 
     def process_image(
         self, 

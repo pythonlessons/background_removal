@@ -68,6 +68,9 @@ class Locker:
     def lockDevice(self):
         print("Locking user screen")
         self.deviceLocked = True
+        #pause
+        #capture
+        #unpause
         #engine.capture_webcam(save_dir="unauthorized/")
         #os.system('gnome-screensaver-command -l')
 
