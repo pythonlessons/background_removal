@@ -9,7 +9,6 @@ class FaceNet:
     """
     def __init__(
         self, 
-        locker: object,
         detector: object,
         onnx_model_path: str = "models/faceNet.onnx", 
         anchors: typing.Union[str, dict] = 'faces',
@@ -31,7 +30,6 @@ class FaceNet:
         if not stow.exists(onnx_model_path):
             raise Exception(f"Model doesn't exists in {onnx_model_path}")
 
-        self.locker = locker
         self.detector = detector
         self.threshold = threshold
         self.color = color
@@ -169,7 +167,7 @@ class FaceNet:
 
         return image
 
-    def __call__(self, frame: np.ndarray) -> np.ndarray:
+    def __call__(self, frame: np.ndarray, draw: bool = True) -> np.ndarray:
         """Face recognition pipeline
 
         Args:
@@ -186,7 +184,7 @@ class FaceNet:
             if np.max(distances) > self.threshold:
                 face_crops[key]["name"] = list(self.anchors.keys())[np.argmax(distances)]
 
-        frame = self.draw(frame, face_crops)
-        self.locker.onFaceNetPipeline(face_crops)
+        if draw:
+            frame = self.draw(frame, face_crops)
 
-        return frame
+        return frame, face_crops
